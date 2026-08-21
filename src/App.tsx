@@ -1,15 +1,12 @@
-import store from "@/redux/store";
 import { Provider } from "react-redux";
+import store from "@/redux/store";
+import { TaskPage } from "@/features/task/components/TaskPage";
 
 function App() {
   return (
-    <>
-      <Provider store={store}>
-        <div>
-          <h1>App</h1>
-        </div>
-      </Provider>
-    </>
+    <Provider store={store}>
+      <TaskPage />
+    </Provider>
   );
 }
 
