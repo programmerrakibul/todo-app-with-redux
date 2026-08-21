@@ -1,40 +1,31 @@
-import { useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { FieldGroup } from "@/components/ui/field";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { FieldGroup } from "@/components/ui/field";
 
-import { TaskFormField } from "./TaskFormField";
+import { toast } from "@/components/ui/toast";
+import { useAppDispatch } from "@/redux/store";
+import { PRIORITY_BADGE_CONFIG, STATUS_BADGE_CONFIG } from "../constants/task";
+import type { ITask } from "../interface/task";
+import { addTask } from "../reducers/task.slice";
 import {
   createTaskSchema,
   TASK_PRIORITY,
   TASK_STATUS,
   type TCreateTask,
 } from "../validation/task";
-import { STATUS_BADGE_CONFIG, PRIORITY_BADGE_CONFIG } from "../constants/task";
-import type { ITask } from "../interface/task";
-
-// ── Select items for Base UI (requires `items` prop on root) ──────────────────
+import { TaskFormField } from "./TaskFormField";
 
 const statusItems = Object.values(TASK_STATUS).map((value) => ({
   label: STATUS_BADGE_CONFIG[value].label,
@@ -46,14 +37,11 @@ const priorityItems = Object.values(TASK_PRIORITY).map((value) => ({
   value,
 }));
 
-// ─────────────────────────────────────────────────────────────────────────────
-
 interface TaskFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   /** When provided the dialog is in edit mode */
   editTask?: ITask | null;
-  onSubmit: (data: TCreateTask) => void;
   /** Optional custom trigger rendered by the parent */
   trigger?: React.ReactNode;
 }
@@ -62,16 +50,16 @@ export function TaskForm({
   open,
   onOpenChange,
   editTask,
-  onSubmit,
   trigger,
 }: TaskFormProps) {
   const isEdit = !!editTask;
+  const dispatch = useAppDispatch();
 
   const {
     control,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitting },
+    formState: { isSubmitting },
   } = useForm<TCreateTask>({
     resolver: zodResolver(createTaskSchema),
     defaultValues: {
@@ -101,16 +89,18 @@ export function TaskForm({
     }
   }, [editTask, reset, open]);
 
-  function handleFormSubmit(data: TCreateTask) {
-    onSubmit(data);
+  const onSubmit = (data: TCreateTask) => {
+    dispatch(addTask(data));
     onOpenChange(false);
-  }
+    toast.add({
+      type: "success",
+      description: "Task added successfully",
+    });
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      {trigger && (
-        <DialogTrigger render={<span />}>{trigger}</DialogTrigger>
-      )}
+      {trigger && <DialogTrigger render={<span />}>{trigger}</DialogTrigger>}
 
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
@@ -122,103 +112,40 @@ export function TaskForm({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(handleFormSubmit)} noValidate>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <FieldGroup className="gap-6">
-
-            {/* Title */}
-            <Controller
+            <TaskFormField
               name="title"
+              label="Title"
               control={control}
-              render={({ field, fieldState }) => (
-                <TaskFormField label="Title" error={fieldState.error}>
-                  <Input
-                    {...field}
-                    placeholder="Task title"
-                    aria-invalid={fieldState.invalid || undefined}
-                  />
-                </TaskFormField>
-              )}
+              type="text"
+              placeholder="e.g. Fix the Form Component bug"
             />
 
-            {/* Description */}
-            <Controller
+            <TaskFormField
               name="description"
+              label="Description"
               control={control}
-              render={({ field, fieldState }) => (
-                <TaskFormField label="Description" error={fieldState.error}>
-                  <Textarea
-                    {...field}
-                    placeholder="Describe the task…"
-                    aria-invalid={fieldState.invalid || undefined}
-                    className="min-h-24"
-                  />
-                </TaskFormField>
-              )}
+              type="textarea"
+              rows={4}
+              placeholder="Describe the task.."
             />
 
-            {/* Status + Priority side by side on wider screens */}
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-
-              {/* Status */}
-              <Controller
+              <TaskFormField
                 name="status"
+                label="Status"
                 control={control}
-                render={({ field, fieldState }) => (
-                  <TaskFormField label="Status" error={fieldState.error}>
-                    <Select
-                      items={statusItems}
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    >
-                      <SelectTrigger
-                        className="w-full"
-                        aria-invalid={fieldState.invalid || undefined}
-                      >
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          {statusItems.map((item) => (
-                            <SelectItem key={item.value} value={item.value}>
-                              {item.label}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </TaskFormField>
-                )}
+                type="select"
+                options={statusItems}
               />
 
-              {/* Priority */}
-              <Controller
+              <TaskFormField
                 name="priority"
+                label="Priority"
                 control={control}
-                render={({ field, fieldState }) => (
-                  <TaskFormField label="Priority" error={fieldState.error}>
-                    <Select
-                      items={priorityItems}
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    >
-                      <SelectTrigger
-                        className="w-full"
-                        aria-invalid={fieldState.invalid || undefined}
-                      >
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          {priorityItems.map((item) => (
-                            <SelectItem key={item.value} value={item.value}>
-                              {item.label}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </TaskFormField>
-                )}
+                type="select"
+                options={priorityItems}
               />
             </div>
           </FieldGroup>

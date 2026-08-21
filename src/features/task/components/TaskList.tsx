@@ -1,17 +1,8 @@
-import { useMemo } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useSelector } from "react-redux";
+import { selectAllTask } from "../selectors/task";
 import { TaskCard } from "./TaskCard";
 import { TaskEmpty } from "./TaskEmpty";
-import type { ITask } from "../interface/task";
-import type { TaskFilters } from "./TaskFilterBar";
-
-interface TaskListProps {
-  tasks: ITask[];
-  filters: TaskFilters;
-  isLoading?: boolean;
-  onEdit: (task: ITask) => void;
-  onDelete: (id: string) => void;
-}
 
 function TaskCardSkeleton() {
   return (
@@ -35,45 +26,8 @@ function TaskCardSkeleton() {
   );
 }
 
-export function TaskList({
-  tasks,
-  filters,
-  isLoading = false,
-  onEdit,
-  onDelete,
-}: TaskListProps) {
-  const filtered = useMemo(() => {
-    let result = [...tasks];
-
-    // Search
-    if (filters.search.trim()) {
-      const q = filters.search.toLowerCase();
-      result = result.filter(
-        (t) =>
-          t.title.toLowerCase().includes(q) ||
-          t.description.toLowerCase().includes(q)
-      );
-    }
-
-    // Status
-    if (filters.status) {
-      result = result.filter((t) => t.status === filters.status);
-    }
-
-    // Priority
-    if (filters.priority) {
-      result = result.filter((t) => t.priority === filters.priority);
-    }
-
-    // Sort by createdAt
-    result.sort((a, b) => {
-      const diff =
-        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-      return filters.sort === "newest" ? -diff : diff;
-    });
-
-    return result;
-  }, [tasks, filters]);
+export function TaskList() {
+  const { data: tasks, isLoading } = useSelector(selectAllTask);
 
   if (isLoading) {
     return (
@@ -85,7 +39,7 @@ export function TaskList({
     );
   }
 
-  if (filtered.length === 0) {
+  if (tasks.length === 0) {
     return (
       <TaskEmpty
         message={
@@ -99,13 +53,8 @@ export function TaskList({
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {filtered.map((task) => (
-        <TaskCard
-          key={task.id}
-          task={task}
-          onEdit={onEdit}
-          onDelete={onDelete}
-        />
+      {tasks.map((task) => (
+        <TaskCard key={task.id} task={task} />
       ))}
     </div>
   );
