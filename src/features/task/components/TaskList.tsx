@@ -1,14 +1,8 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSelector } from "react-redux";
-import type { ITask } from "../interface/task";
 import { selectAllTask } from "../selectors/task";
 import { TaskCard } from "./TaskCard";
 import { TaskEmpty } from "./TaskEmpty";
-
-interface TaskListProps {
-  onEdit: (task: ITask) => void;
-  onDelete: (id: string) => void;
-}
 
 function TaskCardSkeleton() {
   return (
@@ -32,7 +26,7 @@ function TaskCardSkeleton() {
   );
 }
 
-export function TaskList({ onEdit, onDelete }: TaskListProps) {
+export function TaskList() {
   const { data: tasks, isLoading } = useSelector(selectAllTask);
 
   if (isLoading) {
@@ -60,12 +54,7 @@ export function TaskList({ onEdit, onDelete }: TaskListProps) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {tasks.map((task) => (
-        <TaskCard
-          key={task.id}
-          task={task}
-          onEdit={onEdit}
-          onDelete={onDelete}
-        />
+        <TaskCard key={task.id} task={task} />
       ))}
     </div>
   );

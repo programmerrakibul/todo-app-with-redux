@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { FieldGroup } from "@/components/ui/field";
 
+import { toast } from "@/components/ui/toast";
 import { useAppDispatch } from "@/redux/store";
 import { PRIORITY_BADGE_CONFIG, STATUS_BADGE_CONFIG } from "../constants/task";
 import type { ITask } from "../interface/task";
@@ -91,6 +92,10 @@ export function TaskForm({
   const onSubmit = (data: TCreateTask) => {
     dispatch(addTask(data));
     onOpenChange(false);
+    toast.add({
+      type: "success",
+      description: "Task added successfully",
+    });
   };
 
   return (
