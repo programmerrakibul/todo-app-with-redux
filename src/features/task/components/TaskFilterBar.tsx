@@ -1,5 +1,5 @@
+import { SearchIcon, XIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { XIcon, SearchIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,12 +12,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { TASK_PRIORITY, TASK_STATUS } from "../validation/task";
-import {
-  PRIORITY_BADGE_CONFIG,
-  STATUS_BADGE_CONFIG,
-} from "../constants/task";
+import { PRIORITY_BADGE_CONFIG, STATUS_BADGE_CONFIG } from "../constants/task";
 import type { TTaskPriority, TTaskStatus } from "../validation/task";
+import { TASK_PRIORITY, TASK_STATUS } from "../validation/task";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -86,28 +83,28 @@ export function TaskFilterBar({ filters, onChange }: TaskFilterBarProps) {
         onChange({ ...filters, search: value });
       }, 350);
     },
-    [filters, onChange]
+    [filters, onChange],
   );
 
   const handleStatusChange = useCallback(
-    (value: string) => {
-      onChange({ ...filters, status: value as TTaskStatus | "" });
+    (value: string | null) => {
+      onChange({ ...filters, status: (value ?? "") as TTaskStatus | "" });
     },
-    [filters, onChange]
+    [filters, onChange],
   );
 
   const handlePriorityChange = useCallback(
-    (value: string) => {
-      onChange({ ...filters, priority: value as TTaskPriority | "" });
+    (value: string | null) => {
+      onChange({ ...filters, priority: (value ?? "") as TTaskPriority | "" });
     },
-    [filters, onChange]
+    [filters, onChange],
   );
 
   const handleSortChange = useCallback(
-    (value: string) => {
-      onChange({ ...filters, sort: value as SortOrder });
+    (value: string | null) => {
+      onChange({ ...filters, sort: (value ?? "newest") as SortOrder });
     },
-    [filters, onChange]
+    [filters, onChange],
   );
 
   const isFiltered =
@@ -162,7 +159,10 @@ export function TaskFilterBar({ filters, onChange }: TaskFilterBarProps) {
         value={filters.priority}
         onValueChange={handlePriorityChange}
       >
-        <SelectTrigger className="w-full sm:w-40" aria-label="Filter by priority">
+        <SelectTrigger
+          className="w-full sm:w-40"
+          aria-label="Filter by priority"
+        >
           <SelectValue />
         </SelectTrigger>
         <SelectContent alignItemWithTrigger={false}>

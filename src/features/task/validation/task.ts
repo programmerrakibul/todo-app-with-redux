@@ -32,8 +32,8 @@ export const createTaskSchema = z.object({
     .min(1, "Description is required")
     .max(1000, "Description must be less than 1000 characters"),
 
-  status: statusEnum.default(TASK_STATUS.TODO),
-  priority: priorityEnum.default(TASK_PRIORITY.LOW),
+  status: statusEnum,
+  priority: priorityEnum,
 });
 
 export const updateTaskSchema = createTaskSchema.partial();

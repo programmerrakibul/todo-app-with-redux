@@ -1,5 +1,6 @@
-import { createSlice } from "@reduxjs/toolkit";
-import type { ITaskInitialState } from "../interface/task";
+import { createSlice, nanoid, type PayloadAction } from "@reduxjs/toolkit";
+import type { ITask, ITaskInitialState } from "../interface/task";
+import type { TCreateTask } from "../validation/task";
 
 const initialState: ITaskInitialState = {
   data: [],
@@ -12,8 +13,21 @@ const taskSlice = createSlice({
   name: "tasks",
   initialState,
   reducers: {
-    addTask: (state, action) => {
-      state.data.push(action.payload);
+    addTask: {
+      prepare: (input: TCreateTask) => {
+        const task: ITask = {
+          id: nanoid(),
+          ...input,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+
+        return { payload: task };
+      },
+      reducer: (state, action: PayloadAction<ITask>) => {
+        console.log(action.payload);
+        state.data.push(action.payload);
+      },
     },
   },
 });

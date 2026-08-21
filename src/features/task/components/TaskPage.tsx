@@ -1,18 +1,17 @@
-import { useState } from "react";
 import { PlusIcon } from "lucide-react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Toaster, toast } from "@/components/ui/toast";
 
-import { TaskFilterBar, DEFAULT_FILTERS } from "./TaskFilterBar";
-import { TaskList } from "./TaskList";
+import { DEFAULT_FILTERS, TaskFilterBar } from "./TaskFilterBar";
 import { TaskForm } from "./TaskForm";
+import { TaskList } from "./TaskList";
 
-import type { TaskFilters } from "./TaskFilterBar";
 import type { ITask } from "../interface/task";
-import type { TCreateTask } from "../validation/task";
-import { TASK_STATUS, TASK_PRIORITY } from "../validation/task";
+import { TASK_PRIORITY, TASK_STATUS } from "../validation/task";
+import type { TaskFilters } from "./TaskFilterBar";
 
 // ── Placeholder data ──────────────────────────────────────────────────────────
 
@@ -115,29 +114,6 @@ export function TaskPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [editTask, setEditTask] = useState<ITask | null>(null);
 
-  // ── Handlers ────────────────────────────────────────────────────────────────
-
-  function handleAdd(data: TCreateTask) {
-    const newTask: ITask = {
-      ...data,
-      id: makeId(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    setTasks((prev) => [newTask, ...prev]);
-    toast.add({ title: "Task added successfully.", type: "success" });
-  }
-
-  function handleEdit(data: TCreateTask) {
-    if (!editTask) return;
-    setTasks((prev) =>
-      prev.map((t) =>
-        t.id === editTask.id ? { ...t, ...data, updatedAt: new Date() } : t
-      )
-    );
-    toast.add({ title: "Task updated.", type: "success" });
-  }
-
   function handleDelete(id: string) {
     setTasks((prev) => prev.filter((t) => t.id !== id));
     toast.add({ title: "Task deleted.", type: "info" });
@@ -153,20 +129,12 @@ export function TaskPage() {
     setFormOpen(true);
   }
 
-  function handleFormSubmit(data: TCreateTask) {
-    if (editTask) {
-      handleEdit(data);
-    } else {
-      handleAdd(data);
-    }
-  }
-
   // ── Derived stats ────────────────────────────────────────────────────────────
 
   const total = tasks.length;
   const done = tasks.filter((t) => t.status === TASK_STATUS.DONE).length;
   const inProgress = tasks.filter(
-    (t) => t.status === TASK_STATUS.IN_PROGRESS
+    (t) => t.status === TASK_STATUS.IN_PROGRESS,
   ).length;
 
   // ── Render ───────────────────────────────────────────────────────────────────
@@ -183,8 +151,8 @@ export function TaskPage() {
                   Task Board
                 </h1>
                 <p className="text-sm text-muted-foreground">
-                  {total} task{total !== 1 ? "s" : ""} &middot;{" "}
-                  {inProgress} in progress &middot; {done} done
+                  {total} task{total !== 1 ? "s" : ""} &middot; {inProgress} in
+                  progress &middot; {done} done
                 </p>
               </div>
               <Button onClick={openAdd} size="sm">
@@ -204,12 +172,7 @@ export function TaskPage() {
             <Separator />
 
             {/* Task grid */}
-            <TaskList
-              tasks={tasks}
-              filters={filters}
-              onEdit={openEdit}
-              onDelete={handleDelete}
-            />
+            <TaskList onEdit={openEdit} onDelete={handleDelete} />
           </div>
         </main>
 
@@ -221,7 +184,6 @@ export function TaskPage() {
             if (!open) setEditTask(null);
           }}
           editTask={editTask}
-          onSubmit={handleFormSubmit}
         />
       </div>
     </Toaster>
