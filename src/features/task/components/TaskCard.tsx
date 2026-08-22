@@ -13,7 +13,11 @@ import { useAppDispatch } from "@/redux/store";
 import { formatDistanceToNow } from "date-fns";
 import { useState } from "react";
 import type { ITask } from "../interface/task";
-import { updateTaskPriority, updateTaskStatus } from "../reducers/task.slice";
+import {
+  deleteTask,
+  updateTaskPriority,
+  updateTaskStatus,
+} from "../reducers/task.slice";
 import type { TTaskPriority, TTaskStatus } from "../validation/task";
 import { DeleteTaskDialog } from "./DeleteTaskDialog";
 import { TaskCardActions } from "./TaskCardActions";
@@ -42,6 +46,15 @@ export function TaskCard({ task }: TaskCardProps) {
     toast.add({
       type: "success",
       description: "Task priority updated successfully!",
+    });
+  };
+
+  const handleDeleteTask = () => {
+    dispatch(deleteTask(task.id));
+    setDeleteOpen(false);
+    toast.add({
+      type: "success",
+      description: "Task deleted successfully!",
     });
   };
 
@@ -99,7 +112,7 @@ export function TaskCard({ task }: TaskCardProps) {
       <DeleteTaskDialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        onConfirm={() => setDeleteOpen(false)}
+        onConfirm={handleDeleteTask}
       />
     </>
   );
