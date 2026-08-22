@@ -130,6 +130,7 @@ export function TaskFilterBar({ filters, onChange }: TaskFilterBarProps) {
           onChange={handleSearchChange}
           className="pl-5"
           aria-label="Search tasks"
+          type="search"
         />
       </div>
 

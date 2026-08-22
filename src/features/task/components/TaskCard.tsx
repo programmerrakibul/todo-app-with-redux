@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardAction,
@@ -8,28 +7,43 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
+import { toast } from "@/components/ui/toast";
+import { useAppDispatch } from "@/redux/store";
 import { formatDistanceToNow } from "date-fns";
-import { MoreVerticalIcon, PencilIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import type { ITask } from "../interface/task";
-import { TaskPriorityBadge, TaskStatusBadge } from "./TaskBadge";
+import { updateTaskPriority, updateTaskStatus } from "../reducers/task.slice";
+import type { TTaskPriority, TTaskStatus } from "../validation/task";
+import { DeleteTaskDialog } from "./DeleteTaskDialog";
+import { TaskCardActions } from "./TaskCardActions";
 import { TaskForm } from "./TaskForm";
+import { TaskPrioritySelect, TaskStatusSelect } from "./TaskSelect";
 
 interface TaskCardProps {
   task: ITask;
 }
 
 export function TaskCard({ task }: TaskCardProps) {
-  const [open, setOpen] = useState<boolean>(false);
+  const dispatch = useAppDispatch();
+  const [formOpen, setFormOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+
+  const handleStatusChange = (status: TTaskStatus) => {
+    dispatch(updateTaskStatus({ id: task.id, status }));
+    toast.add({
+      type: "success",
+      description: "Task status updated successfully!",
+    });
+  };
+
+  const handlePriorityChange = (priority: TTaskPriority) => {
+    dispatch(updateTaskPriority({ id: task.id, priority }));
+    toast.add({
+      type: "success",
+      description: "Task priority updated successfully!",
+    });
+  };
 
   return (
     <>
@@ -40,40 +54,24 @@ export function TaskCard({ task }: TaskCardProps) {
             {task.description}
           </CardDescription>
           <CardAction>
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                render={
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    aria-label="Task actions"
-                  />
-                }
-              >
-                <MoreVerticalIcon />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" side="bottom">
-                <DropdownMenuGroup>
-                  <DropdownMenuItem onClick={() => setOpen(true)}>
-                    <PencilIcon />
-                    Edit
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem variant="destructive">
-                    <Trash2Icon />
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <TaskCardActions
+              onEdit={() => setFormOpen(true)}
+              onDelete={() => setDeleteOpen(true)}
+            />
           </CardAction>
         </CardHeader>
 
         <CardContent>
           <div className="flex flex-wrap items-center gap-3">
-            <TaskStatusBadge status={task.status} />
+            <TaskStatusSelect
+              value={task.status}
+              onValueChange={handleStatusChange}
+            />
             <Separator orientation="vertical" className="h-3" />
-            <TaskPriorityBadge priority={task.priority} />
+            <TaskPrioritySelect
+              value={task.priority}
+              onValueChange={handlePriorityChange}
+            />
           </div>
         </CardContent>
 
@@ -96,12 +94,12 @@ export function TaskCard({ task }: TaskCardProps) {
         </CardFooter>
       </Card>
 
-      <TaskForm
-        open={open}
-        onOpenChange={(open) => {
-          if (!open) setOpen(false);
-        }}
-        editTask={task}
+      <TaskForm open={formOpen} onOpenChange={setFormOpen} editTask={task} />
+
+      <DeleteTaskDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        onConfirm={() => setDeleteOpen(false)}
       />
     </>
   );
