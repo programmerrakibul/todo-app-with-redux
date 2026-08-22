@@ -42,36 +42,43 @@ const taskSlice = createSlice({
       Object.assign(task, data);
     },
 
-    // updateTaskStatus: (
-    //   state,
-    //   action: PayloadAction<{ id: ITask["id"]; status: ITask["status"] }>,
-    // ) => {
-    //   const { id, status } = action.payload;
-    //   const task = state.data.find((task) => task.id === id);
+    updateTaskStatus: (
+      state,
+      action: PayloadAction<{ id: ITask["id"]; status: ITask["status"] }>,
+    ) => {
+      const { id, status } = action.payload;
+      const task = state.data.find((task) => task.id === id);
 
-    //   if (!task) return;
+      if (!task) return;
 
-    //   task.status = status;
-    // },
+      task.status = status;
+    },
 
-    // updateTaskPriority: (
-    //   state,
-    //   action: PayloadAction<{ id: ITask["id"]; priority: ITask["priority"] }>,
-    // ) => {
-    //   const { id, priority } = action.payload;
-    //   const task = state.data.find((task) => task.id === id);
+    updateTaskPriority: (
+      state,
+      action: PayloadAction<{ id: ITask["id"]; priority: ITask["priority"] }>,
+    ) => {
+      const { id, priority } = action.payload;
+      const task = state.data.find((task) => task.id === id);
 
-    //   if (!task) return;
+      if (!task) return;
 
-    //   task.priority = priority;
-    // },
+      task.priority = priority;
+    },
 
-    // deleteTask: (state, action: PayloadAction<ITask["id"]>) => {
-    //   const id = action.payload;
-    //   state.data = state.data.filter((task) => task.id !== id);
-    // },
+    deleteTask: (state, action: PayloadAction<ITask["id"]>) => {
+      const id = action.payload;
+      state.data = state.data.filter((task) => task.id !== id);
+    },
   },
 });
 
-export const { addTask, updateTask } = taskSlice.actions;
+export const {
+  addTask,
+  updateTask,
+  updateTaskStatus,
+  updateTaskPriority,
+  deleteTask,
+} = taskSlice.actions;
+
 export default taskSlice.reducer;
