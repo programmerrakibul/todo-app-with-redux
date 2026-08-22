@@ -27,7 +27,7 @@ const taskFilterSlice = createSlice({
           state.status = action.payload.value;
           break;
         case "search":
-          state.search = action.payload.value;
+          state.search = action.payload.value.trim();
           break;
         case "sort":
           state.sort = action.payload.value;
@@ -36,10 +36,7 @@ const taskFilterSlice = createSlice({
     },
 
     clearFilter: (state) => {
-      state.priority = "ALL";
-      state.status = "ALL";
-      state.search = "";
-      state.sort = "newest";
+      state = initialState;
     },
   },
 });

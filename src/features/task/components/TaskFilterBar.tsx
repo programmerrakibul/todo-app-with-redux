@@ -12,34 +12,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import { useAppDispatch } from "@/redux/store";
+import { useSelector } from "react-redux";
 import { PRIORITY_BADGE_CONFIG, STATUS_BADGE_CONFIG } from "../constants/task";
-import type { TTaskPriority, TTaskStatus } from "../validation/task";
+import type { ITaskFilter } from "../interface/task";
+import { clearFilter, updateFilter } from "../reducers/task-filter.slice";
+import { selectAllFilters } from "../selectors/task";
 import { TASK_PRIORITY, TASK_STATUS } from "../validation/task";
-
-// ── Types ─────────────────────────────────────────────────────────────────────
-
-export type SortOrder = "newest" | "oldest";
-
-export interface TaskFilters {
-  search: string;
-  status: TTaskStatus | "";
-  priority: TTaskPriority | "";
-  sort: SortOrder;
-}
-
-export const DEFAULT_FILTERS: TaskFilters = {
-  search: "",
-  status: "",
-  priority: "",
-  sort: "newest",
-};
-
-interface TaskFilterBarProps {
-  filters: TaskFilters;
-  onChange: (filters: TaskFilters) => void;
-}
-
-// ── Select items (Base UI requires `items` prop) ──────────────────────────────
 
 const statusItems = [
   { label: "All statuses", value: "" },
@@ -62,12 +41,12 @@ const sortItems = [
   { label: "Oldest first", value: "oldest" },
 ];
 
-// ── Component ─────────────────────────────────────────────────────────────────
-
-export function TaskFilterBar({ filters, onChange }: TaskFilterBarProps) {
+export function TaskFilterBar() {
   // Local search state for debounce — keeps input snappy
-  const [searchInput, setSearchInput] = useState(filters.search);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const filters = useSelector(selectAllFilters);
+  const [searchInput, setSearchInput] = useState(filters.search);
+  const dispatch = useAppDispatch();
 
   // Keep local state in sync when filters are reset externally
   useEffect(() => {
@@ -80,44 +59,55 @@ export function TaskFilterBar({ filters, onChange }: TaskFilterBarProps) {
       setSearchInput(value);
       if (debounceRef.current) clearTimeout(debounceRef.current);
       debounceRef.current = setTimeout(() => {
-        onChange({ ...filters, search: value });
+        dispatch(
+          updateFilter({
+            type: "search",
+            value,
+          }),
+        );
       }, 350);
     },
-    [filters, onChange],
+    [],
   );
 
-  const handleStatusChange = useCallback(
-    (value: string | null) => {
-      onChange({ ...filters, status: (value ?? "") as TTaskStatus | "" });
-    },
-    [filters, onChange],
-  );
+  const handleStatusChange = useCallback((value: ITaskFilter["status"]) => {
+    dispatch(
+      updateFilter({
+        type: "status",
+        value,
+      }),
+    );
+  }, []);
 
-  const handlePriorityChange = useCallback(
-    (value: string | null) => {
-      onChange({ ...filters, priority: (value ?? "") as TTaskPriority | "" });
-    },
-    [filters, onChange],
-  );
+  const handlePriorityChange = useCallback((value: ITaskFilter["priority"]) => {
+    dispatch(
+      updateFilter({
+        type: "priority",
+        value,
+      }),
+    );
+  }, []);
 
-  const handleSortChange = useCallback(
-    (value: string | null) => {
-      onChange({ ...filters, sort: (value ?? "newest") as SortOrder });
-    },
-    [filters, onChange],
-  );
+  const handleSortChange = useCallback((value: ITaskFilter["sort"]) => {
+    dispatch(
+      updateFilter({
+        type: "sort",
+        value,
+      }),
+    );
+  }, []);
 
   const isFiltered =
     filters.search !== "" ||
-    filters.status !== "" ||
-    filters.priority !== "" ||
+    filters.status !== "ALL" ||
+    filters.priority !== "ALL" ||
     filters.sort !== "newest";
 
   const handleClear = useCallback(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     setSearchInput("");
-    onChange(DEFAULT_FILTERS);
-  }, [onChange]);
+    dispatch(clearFilter());
+  }, []);
 
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
@@ -138,7 +128,9 @@ export function TaskFilterBar({ filters, onChange }: TaskFilterBarProps) {
       <Select
         items={statusItems}
         value={filters.status}
-        onValueChange={handleStatusChange}
+        onValueChange={(nextValue) =>
+          nextValue && handleStatusChange(nextValue)
+        }
       >
         <SelectTrigger className="w-full sm:w-40" aria-label="Filter by status">
           <SelectValue />
@@ -158,7 +150,9 @@ export function TaskFilterBar({ filters, onChange }: TaskFilterBarProps) {
       <Select
         items={priorityItems}
         value={filters.priority}
-        onValueChange={handlePriorityChange}
+        onValueChange={(nextValue) =>
+          nextValue && handlePriorityChange(nextValue)
+        }
       >
         <SelectTrigger
           className="w-full sm:w-40"
@@ -181,7 +175,7 @@ export function TaskFilterBar({ filters, onChange }: TaskFilterBarProps) {
       <Select
         items={sortItems}
         value={filters.sort}
-        onValueChange={handleSortChange}
+        onValueChange={(nextValue) => nextValue && handleSortChange(nextValue)}
       >
         <SelectTrigger className="w-full sm:w-36" aria-label="Sort by date">
           <SelectValue />
