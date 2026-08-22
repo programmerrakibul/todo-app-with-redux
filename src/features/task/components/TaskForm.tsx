@@ -18,7 +18,7 @@ import { toast } from "@/components/ui/toast";
 import { useAppDispatch } from "@/redux/store";
 import { PRIORITY_BADGE_CONFIG, STATUS_BADGE_CONFIG } from "../constants/task";
 import type { ITask } from "../interface/task";
-import { addTask } from "../reducers/task.slice";
+import { addTask, updateTask } from "../reducers/task.slice";
 import {
   createTaskSchema,
   TASK_PRIORITY,
@@ -90,12 +90,28 @@ export function TaskForm({
   }, [editTask, reset, open]);
 
   const onSubmit = (data: TCreateTask) => {
-    dispatch(addTask(data));
-    onOpenChange(false);
-    toast.add({
-      type: "success",
-      description: "Task added successfully",
-    });
+    try {
+      if (isEdit) {
+        dispatch(updateTask({ id: editTask.id, data }));
+      } else {
+        dispatch(addTask(data));
+      }
+
+      onOpenChange(false);
+      toast.add({
+        type: "success",
+        description: isEdit
+          ? "Task updated successfully!"
+          : "Task added successfully!",
+      });
+    } catch (error: unknown) {
+      console.log("Error occurred:", error);
+
+      toast.add({
+        type: "error",
+        description: "Something went wrong. Please try again later.",
+      });
+    }
   };
 
   return (
