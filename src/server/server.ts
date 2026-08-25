@@ -40,6 +40,7 @@ export default function makeServer() {
     },
 
     routes() {
+      this.urlPrefix = import.meta.env.VITE_CLIENT_BASE_URL;
       this.namespace = "api";
 
       this.get("/tasks", (schema) => {
