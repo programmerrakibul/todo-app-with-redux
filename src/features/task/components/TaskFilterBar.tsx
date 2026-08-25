@@ -17,11 +17,11 @@ import { useSelector } from "react-redux";
 import { PRIORITY_BADGE_CONFIG, STATUS_BADGE_CONFIG } from "../constants/task";
 import type { ITaskFilter } from "../interface/task";
 import { clearFilter, updateFilter } from "../reducers/task-filter.slice";
-import { selectAllFilters } from "../selectors/task";
+import { selectAllFilters } from "../selectors/task-filter";
 import { TASK_PRIORITY, TASK_STATUS } from "../validation/task";
 
 const statusItems = [
-  { label: "All statuses", value: "" },
+  { label: "All statuses", value: "ALL" },
   ...Object.values(TASK_STATUS).map((v) => ({
     label: STATUS_BADGE_CONFIG[v].label,
     value: v,
@@ -29,7 +29,7 @@ const statusItems = [
 ];
 
 const priorityItems = [
-  { label: "All priorities", value: "" },
+  { label: "All priorities", value: "ALL" },
   ...Object.values(TASK_PRIORITY).map((v) => ({
     label: PRIORITY_BADGE_CONFIG[v].label,
     value: v,

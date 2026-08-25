@@ -36,7 +36,10 @@ const taskFilterSlice = createSlice({
     },
 
     clearFilter: (state) => {
-      state = initialState;
+      state.priority = "ALL";
+      state.status = "ALL";
+      state.search = "";
+      state.sort = "newest";
     },
   },
 });

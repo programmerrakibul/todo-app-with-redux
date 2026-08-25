@@ -1,11 +1,38 @@
 import type { RootState } from "@/redux/store";
+import { createSelector } from "@reduxjs/toolkit";
+import { selectAllFilters } from "./task-filter";
 
 export const selectAllTask = (state: RootState) => state.tasks;
-export const selectAllFilters = (state: RootState) => state.taskFilters;
-export const selectSearchFilter = (state: RootState) =>
-  state.taskFilters.search;
-export const selectStatusFilter = (state: RootState) =>
-  state.taskFilters.status;
-export const selectPriorityFilter = (state: RootState) =>
-  state.taskFilters.priority;
-export const selectSortOrder = (state: RootState) => state.taskFilters.sort;
+export const selectFilteredTasks = createSelector(
+  [selectAllTask, selectAllFilters],
+  (tasks, filters) => {
+    const filtered = tasks.data
+      .filter((task) => {
+        if (filters.status !== "ALL" && task.status !== filters.status)
+          return false;
+
+        if (filters.priority !== "ALL" && task.priority !== filters.priority)
+          return false;
+
+        if (
+          filters.search !== "" &&
+          !task.title.toLowerCase().includes(filters.search.toLowerCase())
+        )
+          return false;
+
+        return true;
+      })
+      .sort((taskA, taskB) => {
+        const dateTaskA = Number(taskA.createdAt);
+        const dateTaskB = Number(taskB.createdAt);
+
+        if (filters.sort === "newest") {
+          return dateTaskB - dateTaskA;
+        } else {
+          return dateTaskA - dateTaskB;
+        }
+      });
+
+    return { data: filtered, isLoading: false, isError: false, error: null };
+  },
+);
