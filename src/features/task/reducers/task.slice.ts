@@ -1,6 +1,6 @@
 import { createSlice, nanoid, type PayloadAction } from "@reduxjs/toolkit";
 import type { ITask, ITaskInitialState } from "../interface/task";
-import type { TCreateTask } from "../validation/task";
+import type { TCreateTask, TUpdateTask } from "../validation/task";
 
 const initialState: ITaskInitialState = {
   data: [],
@@ -29,8 +29,56 @@ const taskSlice = createSlice({
         state.data.push(action.payload);
       },
     },
+
+    updateTask: (
+      state,
+      action: PayloadAction<{ id: ITask["id"]; data: TUpdateTask }>,
+    ) => {
+      const { id, data } = action.payload;
+      const task = state.data.find((task) => task.id === id);
+
+      if (!task) return;
+
+      Object.assign(task, data);
+    },
+
+    updateTaskStatus: (
+      state,
+      action: PayloadAction<{ id: ITask["id"]; status: ITask["status"] }>,
+    ) => {
+      const { id, status } = action.payload;
+      const task = state.data.find((task) => task.id === id);
+
+      if (!task) return;
+
+      task.status = status;
+    },
+
+    updateTaskPriority: (
+      state,
+      action: PayloadAction<{ id: ITask["id"]; priority: ITask["priority"] }>,
+    ) => {
+      const { id, priority } = action.payload;
+      const task = state.data.find((task) => task.id === id);
+
+      if (!task) return;
+
+      task.priority = priority;
+    },
+
+    deleteTask: (state, action: PayloadAction<ITask["id"]>) => {
+      const id = action.payload;
+      state.data = state.data.filter((task) => task.id !== id);
+    },
   },
 });
 
-export const { addTask } = taskSlice.actions;
+export const {
+  addTask,
+  updateTask,
+  updateTaskStatus,
+  updateTaskPriority,
+  deleteTask,
+} = taskSlice.actions;
+
 export default taskSlice.reducer;

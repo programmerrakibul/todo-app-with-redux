@@ -1,4 +1,4 @@
-import type { TCreateTask } from "../validation/task";
+import type { TCreateTask, TTaskPriority, TTaskStatus } from "../validation/task";
 
 export interface ITask extends TCreateTask {
   id: string;
@@ -11,4 +11,11 @@ export interface ITaskInitialState {
   isLoading: boolean;
   isError: boolean;
   error: string | null;
+}
+
+export interface ITaskFilter {
+  status: TTaskStatus | "ALL";
+  priority: TTaskPriority | "ALL";
+  search: string;
+  sort: "newest" | "oldest";
 }

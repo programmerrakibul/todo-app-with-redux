@@ -1,6 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSelector } from "react-redux";
-import { selectAllTask } from "../selectors/task";
+import { selectFilteredTasks } from "../selectors/task";
 import { TaskCard } from "./TaskCard";
 import { TaskEmpty } from "./TaskEmpty";
 
@@ -27,7 +27,7 @@ function TaskCardSkeleton() {
 }
 
 export function TaskList() {
-  const { data: tasks, isLoading } = useSelector(selectAllTask);
+  const { data: tasks, isLoading } = useSelector(selectFilteredTasks);
 
   if (isLoading) {
     return (
