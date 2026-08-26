@@ -1,5 +1,6 @@
 import { createSlice, nanoid, type PayloadAction } from "@reduxjs/toolkit";
 import type { ITask, ITaskInitialState } from "../interface/task";
+import taskServices from "../services/task";
 import type { TCreateTask, TUpdateTask } from "../validation/task";
 
 const initialState: ITaskInitialState = {
@@ -25,7 +26,6 @@ const taskSlice = createSlice({
         return { payload: task };
       },
       reducer: (state, action: PayloadAction<ITask>) => {
-        console.log(action.payload);
         state.data.push(action.payload);
       },
     },
@@ -70,6 +70,28 @@ const taskSlice = createSlice({
       const id = action.payload;
       state.data = state.data.filter((task) => task.id !== id);
     },
+  },
+
+  extraReducers: (builder) => {
+    builder
+      .addCase(taskServices.getTasksThunk.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+        state.isError = false;
+      })
+      .addCase(taskServices.getTasksThunk.fulfilled, (state, action) => {
+        state.data = action.payload;
+        state.isLoading = false;
+        state.error = null;
+        state.isError = false;
+      })
+      .addCase(taskServices.getTasksThunk.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error =
+          action.error.message ??
+          "Failed to fetch tasks. Please try again later.";
+        state.isError = true;
+      });
   },
 });
 

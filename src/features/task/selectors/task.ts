@@ -5,8 +5,8 @@ import { selectAllFilters } from "./task-filter";
 export const selectAllTask = (state: RootState) => state.tasks;
 export const selectFilteredTasks = createSelector(
   [selectAllTask, selectAllFilters],
-  (tasks, filters) => {
-    const filtered = tasks.data
+  (data, filters) => {
+    const filtered = data.data
       .filter((task) => {
         if (filters.status !== "ALL" && task.status !== filters.status)
           return false;
@@ -33,6 +33,11 @@ export const selectFilteredTasks = createSelector(
         }
       });
 
-    return { data: filtered, isLoading: false, isError: false, error: null };
+    return {
+      data: filtered,
+      isLoading: data.isLoading,
+      isError: data.isError,
+      error: data.error,
+    };
   },
 );

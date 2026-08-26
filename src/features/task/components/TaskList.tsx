@@ -1,6 +1,9 @@
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAppDispatch } from "@/redux/store";
+import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { selectFilteredTasks } from "../selectors/task";
+import taskServices from "../services/task";
 import { TaskCard } from "./TaskCard";
 import { TaskEmpty } from "./TaskEmpty";
 
@@ -28,6 +31,11 @@ function TaskCardSkeleton() {
 
 export function TaskList() {
   const { data: tasks, isLoading } = useSelector(selectFilteredTasks);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(taskServices.getTasksThunk());
+  }, [dispatch]);
 
   if (isLoading) {
     return (
@@ -39,7 +47,7 @@ export function TaskList() {
     );
   }
 
-  if (tasks.length === 0) {
+  if (!isLoading && tasks.length === 0) {
     return (
       <TaskEmpty
         message={

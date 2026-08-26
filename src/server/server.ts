@@ -1,10 +1,18 @@
 import { createServer, Model } from "miragejs";
 
-export default function makeServer() {
+interface IServerProps {
+  environment?: "development" | "test" | "production";
+}
+
+export default function makeServer({
+  environment = "development",
+}: IServerProps) {
   return createServer({
     models: {
       task: Model,
     },
+
+    environment,
 
     seeds: (server) => {
       server.create("task", {
@@ -43,9 +51,15 @@ export default function makeServer() {
       this.urlPrefix = import.meta.env.VITE_CLIENT_BASE_URL;
       this.namespace = "api";
 
-      this.get("/tasks", (schema) => {
-        return schema.all("task");
-      });
+      this.get(
+        "/tasks",
+        (schema) => {
+          return schema.all("task").models;
+        },
+        {
+          timing: 3000,
+        },
+      );
     },
   });
 }

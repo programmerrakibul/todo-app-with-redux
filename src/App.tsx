@@ -1,10 +1,10 @@
 import { Toaster } from "@/components/ui/toast";
 import { TaskPage } from "@/features/task/components/TaskPage";
 import store from "@/redux/store";
-import { Provider } from "react-redux";
 import makeServer from "@/server/server";
+import { Provider } from "react-redux";
 
-makeServer();
+makeServer({ environment: "development" });
 
 function App() {
   return (
