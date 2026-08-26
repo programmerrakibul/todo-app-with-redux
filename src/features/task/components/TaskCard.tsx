@@ -9,14 +9,13 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/components/ui/toast";
-import { useAppDispatch } from "@/redux/store";
 import { formatDistanceToNow } from "date-fns";
 import { useState } from "react";
 import type { ITask } from "../interface/task";
 import {
-  deleteTask,
-  updateTaskPriority,
-  updateTaskStatus,
+  useDeleteTaskMutation,
+  useUpdateTaskPriorityMutation,
+  useUpdateTaskStatusMutation,
 } from "../reducers/task.slice";
 import type { TTaskPriority, TTaskStatus } from "../validation/task";
 import { DeleteTaskDialog } from "./DeleteTaskDialog";
@@ -29,28 +28,30 @@ interface TaskCardProps {
 }
 
 export function TaskCard({ task }: TaskCardProps) {
-  const dispatch = useAppDispatch();
   const [formOpen, setFormOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [updateTaskStatus] = useUpdateTaskStatusMutation();
+  const [updateTaskPriority] = useUpdateTaskPriorityMutation();
+  const [deleteTask] = useDeleteTaskMutation();
 
-  const handleStatusChange = (status: TTaskStatus) => {
-    dispatch(updateTaskStatus({ id: task.id, status }));
+  const handleStatusChange = async (status: TTaskStatus) => {
+    await updateTaskStatus({ id: task.id, data: { status } });
     toast.add({
       type: "success",
       description: "Task status updated successfully!",
     });
   };
 
-  const handlePriorityChange = (priority: TTaskPriority) => {
-    dispatch(updateTaskPriority({ id: task.id, priority }));
+  const handlePriorityChange = async (priority: TTaskPriority) => {
+    await updateTaskPriority({ id: task.id, data: { priority } });
     toast.add({
       type: "success",
       description: "Task priority updated successfully!",
     });
   };
 
-  const handleDeleteTask = () => {
-    dispatch(deleteTask(task.id));
+  const handleDeleteTask = async () => {
+    await deleteTask(task.id);
     setDeleteOpen(false);
     toast.add({
       type: "success",

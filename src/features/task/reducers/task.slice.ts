@@ -1,84 +1,99 @@
-import { createSlice, nanoid, type PayloadAction } from "@reduxjs/toolkit";
-import type { ITask, ITaskInitialState } from "../interface/task";
-import type { TCreateTask, TUpdateTask } from "../validation/task";
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import type { ITask } from "../interface/task";
+import type {
+  TCreateTask,
+  TUpdateTask,
+  TUpdateTaskPriority,
+  TUpdateTaskStatus,
+} from "../validation/task";
 
-const initialState: ITaskInitialState = {
-  data: [],
-  isLoading: false,
-  isError: false,
-  error: null,
-};
+const taskApi = createApi({
+  reducerPath: "tasks",
+  baseQuery: fetchBaseQuery({
+    baseUrl: `${import.meta.env.VITE_CLIENT_BASE_URL}/api/tasks`,
+  }),
+  tagTypes: ["Task"],
+  endpoints: (build) => ({
+    getTasks: build.query<ITask[], void>({
+      query: () => ({
+        url: "/",
+        method: "GET",
+      }),
+      providesTags: ["Task"],
+    }),
 
-const taskSlice = createSlice({
-  name: "tasks",
-  initialState,
-  reducers: {
-    addTask: {
-      prepare: (input: TCreateTask) => {
-        const task: ITask = {
-          id: nanoid(),
-          ...input,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        };
+    addTask: build.mutation<{ task: ITask }, TCreateTask>({
+      query: (body) => ({
+        url: "/",
+        method: "POST",
+        body,
+      }),
 
-        return { payload: task };
-      },
-      reducer: (state, action: PayloadAction<ITask>) => {
-        console.log(action.payload);
-        state.data.push(action.payload);
-      },
-    },
+      invalidatesTags: ["Task"],
+    }),
 
-    updateTask: (
-      state,
-      action: PayloadAction<{ id: ITask["id"]; data: TUpdateTask }>,
-    ) => {
-      const { id, data } = action.payload;
-      const task = state.data.find((task) => task.id === id);
+    updateTask: build.mutation<
+      { task: ITask },
+      { id: ITask["id"]; data: Partial<TUpdateTask> }
+    >({
+      query: (payload) => ({
+        url: `/${payload.id}`,
+        method: "PUT",
+        body: payload.data,
+      }),
 
-      if (!task) return;
+      invalidatesTags: ["Task"],
+    }),
 
-      Object.assign(task, data);
-    },
+    updateTaskStatus: build.mutation<
+      { task: ITask },
+      {
+        id: ITask["id"];
+        data: TUpdateTaskStatus;
+      }
+    >({
+      query: (payload) => ({
+        url: `/${payload.id}/status`,
+        body: payload.data,
+        method: "PATCH",
+      }),
 
-    updateTaskStatus: (
-      state,
-      action: PayloadAction<{ id: ITask["id"]; status: ITask["status"] }>,
-    ) => {
-      const { id, status } = action.payload;
-      const task = state.data.find((task) => task.id === id);
+      invalidatesTags: ["Task"],
+    }),
 
-      if (!task) return;
+    updateTaskPriority: build.mutation<
+      { task: ITask },
+      {
+        id: ITask["id"];
+        data: TUpdateTaskPriority;
+      }
+    >({
+      query: (payload) => ({
+        url: `/${payload.id}/priority`,
+        body: payload.data,
+        method: "PATCH",
+      }),
 
-      task.status = status;
-    },
+      invalidatesTags: ["Task"],
+    }),
 
-    updateTaskPriority: (
-      state,
-      action: PayloadAction<{ id: ITask["id"]; priority: ITask["priority"] }>,
-    ) => {
-      const { id, priority } = action.payload;
-      const task = state.data.find((task) => task.id === id);
+    deleteTask: build.mutation<unknown, ITask["id"]>({
+      query: (id) => ({
+        url: `/${id}`,
+        method: "DELETE",
+      }),
 
-      if (!task) return;
-
-      task.priority = priority;
-    },
-
-    deleteTask: (state, action: PayloadAction<ITask["id"]>) => {
-      const id = action.payload;
-      state.data = state.data.filter((task) => task.id !== id);
-    },
-  },
+      invalidatesTags: ["Task"],
+    }),
+  }),
 });
 
 export const {
-  addTask,
-  updateTask,
-  updateTaskStatus,
-  updateTaskPriority,
-  deleteTask,
-} = taskSlice.actions;
-
-export default taskSlice.reducer;
+  useGetTasksQuery,
+  useAddTaskMutation,
+  useUpdateTaskMutation,
+  useUpdateTaskStatusMutation,
+  useUpdateTaskPriorityMutation,
+  useDeleteTaskMutation,
+} = taskApi;
+export default taskApi;
