@@ -15,9 +15,9 @@ import {
 import { FieldGroup } from "@/components/ui/field";
 
 import { toast } from "@/components/ui/toast";
-import { useAppDispatch } from "@/redux/store";
 import { PRIORITY_BADGE_CONFIG, STATUS_BADGE_CONFIG } from "../constants/task";
 import type { ITask } from "../interface/task";
+import { useAddTaskMutation } from "../reducers/task.slice";
 import {
   createTaskSchema,
   TASK_PRIORITY,
@@ -52,7 +52,7 @@ export function TaskForm({
   trigger,
 }: TaskFormProps) {
   const isEdit = !!editTask;
-  const dispatch = useAppDispatch();
+  const [addTask] = useAddTaskMutation();
 
   const {
     control,
@@ -88,12 +88,12 @@ export function TaskForm({
     }
   }, [editTask, reset, open]);
 
-  const onSubmit = (data: TCreateTask) => {
+  const onSubmit = async (data: TCreateTask) => {
     try {
       if (isEdit) {
         // dispatch(updateTask({ id: editTask.id, data }));
       } else {
-        // dispatch(addTask(data));
+        await addTask(data).unwrap();
       }
 
       onOpenChange(false);

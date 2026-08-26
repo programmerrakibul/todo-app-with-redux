@@ -57,9 +57,6 @@ export default function makeServer({
         (schema) => {
           return schema.all("task").models;
         },
-        {
-          timing: 3000,
-        },
       );
 
       this.post("/tasks", (schema, request) => {
