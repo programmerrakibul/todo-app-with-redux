@@ -18,7 +18,6 @@ import { toast } from "@/components/ui/toast";
 import { useAppDispatch } from "@/redux/store";
 import { PRIORITY_BADGE_CONFIG, STATUS_BADGE_CONFIG } from "../constants/task";
 import type { ITask } from "../interface/task";
-import { addTask, updateTask } from "../reducers/task.slice";
 import {
   createTaskSchema,
   TASK_PRIORITY,
@@ -92,9 +91,9 @@ export function TaskForm({
   const onSubmit = (data: TCreateTask) => {
     try {
       if (isEdit) {
-        dispatch(updateTask({ id: editTask.id, data }));
+        // dispatch(updateTask({ id: editTask.id, data }));
       } else {
-        dispatch(addTask(data));
+        // dispatch(addTask(data));
       }
 
       onOpenChange(false);

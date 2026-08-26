@@ -1,3 +1,4 @@
+import { nanoid } from "@reduxjs/toolkit";
 import { createServer, Model } from "miragejs";
 
 interface IServerProps {
@@ -60,6 +61,18 @@ export default function makeServer({
           timing: 3000,
         },
       );
+
+      this.post("/tasks", (schema, request) => {
+        const attrs = JSON.parse(request.requestBody);
+
+        Object.assign(attrs, {
+          id: nanoid(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+
+        return schema.create("task", attrs);
+      });
     },
   });
 }

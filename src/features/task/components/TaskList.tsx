@@ -1,8 +1,7 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAppDispatch } from "@/redux/store";
 import { useEffect } from "react";
-import { useSelector } from "react-redux";
-import { selectFilteredTasks } from "../selectors/task";
+import { useGetTasksQuery } from "../reducers/task.slice";
 import taskServices from "../services/task";
 import { TaskCard } from "./TaskCard";
 import { TaskEmpty } from "./TaskEmpty";
@@ -30,7 +29,7 @@ function TaskCardSkeleton() {
 }
 
 export function TaskList() {
-  const { data: tasks, isLoading } = useSelector(selectFilteredTasks);
+  const { isLoading, data: tasks } = useGetTasksQuery();
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -47,16 +46,8 @@ export function TaskList() {
     );
   }
 
-  if (!isLoading && tasks.length === 0) {
-    return (
-      <TaskEmpty
-        message={
-          tasks.length === 0
-            ? "Add your first task using the button above."
-            : "No tasks match the current filters."
-        }
-      />
-    );
+  if (!tasks) {
+    return <TaskEmpty message={"No tasks match the current filters."} />;
   }
 
   return (

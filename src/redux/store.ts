@@ -1,13 +1,17 @@
 import taskFilterReducer from "@/features/task/reducers/task-filter.slice";
-import tasksReducer from "@/features/task/reducers/task.slice";
+import taskApi from "@/features/task/reducers/task.slice";
 import { configureStore } from "@reduxjs/toolkit";
 import { useDispatch } from "react-redux";
 
 const store = configureStore({
   reducer: {
-    tasks: tasksReducer,
+    [taskApi.reducerPath]: taskApi.reducer,
     taskFilters: taskFilterReducer,
   },
+
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(taskApi.middleware),
+
   devTools: true,
 });
 
