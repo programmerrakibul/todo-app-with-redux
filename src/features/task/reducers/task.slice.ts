@@ -1,6 +1,11 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import type { ITask } from "../interface/task";
-import type { TCreateTask } from "../validation/task";
+import type {
+  TCreateTask,
+  TUpdateTask,
+  TUpdateTaskPriority,
+  TUpdateTaskStatus,
+} from "../validation/task";
 
 const taskApi = createApi({
   reducerPath: "tasks",
@@ -26,8 +31,69 @@ const taskApi = createApi({
 
       invalidatesTags: ["Task"],
     }),
+
+    updateTask: build.mutation<
+      { task: ITask },
+      { id: ITask["id"]; data: Partial<TUpdateTask> }
+    >({
+      query: (payload) => ({
+        url: `/${payload.id}`,
+        method: "PUT",
+        body: payload.data,
+      }),
+
+      invalidatesTags: ["Task"],
+    }),
+
+    updateTaskStatus: build.mutation<
+      { task: ITask },
+      {
+        id: ITask["id"];
+        data: TUpdateTaskStatus;
+      }
+    >({
+      query: (payload) => ({
+        url: `/${payload.id}/status`,
+        body: payload.data,
+        method: "PATCH",
+      }),
+
+      invalidatesTags: ["Task"],
+    }),
+
+    updateTaskPriority: build.mutation<
+      { task: ITask },
+      {
+        id: ITask["id"];
+        data: TUpdateTaskPriority;
+      }
+    >({
+      query: (payload) => ({
+        url: `/${payload.id}/priority`,
+        body: payload.data,
+        method: "PATCH",
+      }),
+
+      invalidatesTags: ["Task"],
+    }),
+
+    deleteTask: build.mutation<unknown, ITask["id"]>({
+      query: (id) => ({
+        url: `/${id}`,
+        method: "DELETE",
+      }),
+
+      invalidatesTags: ["Task"],
+    }),
   }),
 });
 
-export const { useGetTasksQuery, useAddTaskMutation } = taskApi;
+export const {
+  useGetTasksQuery,
+  useAddTaskMutation,
+  useUpdateTaskMutation,
+  useUpdateTaskStatusMutation,
+  useUpdateTaskPriorityMutation,
+  useDeleteTaskMutation,
+} = taskApi;
 export default taskApi;

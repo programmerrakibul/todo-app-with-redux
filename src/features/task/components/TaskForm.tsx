@@ -17,7 +17,10 @@ import { FieldGroup } from "@/components/ui/field";
 import { toast } from "@/components/ui/toast";
 import { PRIORITY_BADGE_CONFIG, STATUS_BADGE_CONFIG } from "../constants/task";
 import type { ITask } from "../interface/task";
-import { useAddTaskMutation } from "../reducers/task.slice";
+import {
+  useAddTaskMutation,
+  useUpdateTaskMutation,
+} from "../reducers/task.slice";
 import {
   createTaskSchema,
   TASK_PRIORITY,
@@ -53,6 +56,7 @@ export function TaskForm({
 }: TaskFormProps) {
   const isEdit = !!editTask;
   const [addTask] = useAddTaskMutation();
+  const [updateTask] = useUpdateTaskMutation();
 
   const {
     control,
@@ -91,7 +95,7 @@ export function TaskForm({
   const onSubmit = async (data: TCreateTask) => {
     try {
       if (isEdit) {
-        // dispatch(updateTask({ id: editTask.id, data }));
+        await updateTask({ id: editTask.id, data });
       } else {
         await addTask(data).unwrap();
       }
