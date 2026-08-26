@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import type { ITask } from "../interface/task";
+import type { ITask, ITaskFilter } from "../interface/task";
 import type {
   TCreateTask,
   TUpdateTask,
@@ -14,10 +14,11 @@ const taskApi = createApi({
   }),
   tagTypes: ["Task"],
   endpoints: (build) => ({
-    getTasks: build.query<ITask[], void>({
-      query: () => ({
+    getTasks: build.query<ITask[], ITaskFilter>({
+      query: (params) => ({
         url: "/",
         method: "GET",
+        params,
       }),
       providesTags: ["Task"],
     }),

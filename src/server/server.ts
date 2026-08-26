@@ -1,3 +1,4 @@
+import type { ITask, ITaskFilter } from "@/features/task/interface/task";
 import { nanoid } from "@reduxjs/toolkit";
 import { createServer, Model } from "miragejs";
 
@@ -130,8 +131,31 @@ export default function makeServer({
       this.urlPrefix = import.meta.env.VITE_CLIENT_BASE_URL;
       this.namespace = "api";
 
-      this.get("/tasks", (schema) => {
-        return schema.all("task").models;
+      this.get("/tasks", (schema, request) => {
+        const query = request.queryParams as unknown as ITaskFilter;
+
+        const filteredTasks = schema.all("task").models.filter((task) => {
+          const { status, priority, title } = task as unknown as ITask;
+
+          if (query.status !== "ALL" && status !== query.status) {
+            return false;
+          }
+
+          if (query.priority !== "ALL" && priority !== query.priority) {
+            return false;
+          }
+
+          if (
+            query.search &&
+            !title.toLowerCase().includes(query.search.toLowerCase())
+          ) {
+            return false;
+          }
+
+          return true;
+        });
+
+        return filteredTasks;
       });
 
       this.post("/tasks", (schema, request) => {
